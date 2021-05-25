@@ -1,0 +1,61 @@
+---
+title: "Peterson Capital Daily Media Brief"  
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+output: pdf_document
+header-includes:
+  - \usepackage{titling}
+  - \pretitle{\begin{center}
+    \includegraphics[width=5in,height=7in]{logo.png}\LARGE\\}
+  - \posttitle{\end{center}}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+ 
+```{r ,include=FALSE}
+library(readtext)
+library(reticulate)
+#extracts hyperlinks from the word doc using python script
+#There is nothing as far as am aware to extract hyperlinks directly in R, resorted to python
+source_python("extract.py")
+#Can sorce hyperlinks by index
+hyperlinks
+
+#read document in R to extract text 
+doc.text <- readtext("Peterson.docx")$text 
+# Split text into parts using new line character:
+
+doc.parts <- strsplit(doc.text, "\n")[[1]]
+# The text in between these 2 keywords will be abstract text:
+Keywords.loc <- grep("Keywords:", doc.parts)
+
+#company names (Always sits before the keywords)
+company.names = doc.parts[Keywords.loc-1]
+#sort customer alphabetically 
+ 
+client.location = which(company.names=="Big Rock Brewery bigrockbeer.com") 
+cusomter_name = company.names[client.location]
+#extract hyperlink position from name
+#this is if you want to put hyperlinks to text
+client.location.link=grep("bigrockbeer.com",hyperlinks)
+
+customer_link=hyperlinks[client.location.link][[1]][[2]] 
+#extract keywords based on the company name
+key_word = doc.parts[Keywords.loc][client.location]
+#output extracted articles with hyperlinks
+ht=c() 
+for (t in 1:5){
+ ht[t] =paste(hyperlinks[t][[1]][[1]],hyperlinks[t][[1]][[2]]) 
+  }
+ht 
+
+
+```
+ 
+**[`r cusomter_name`](`r customer_link`)**\
+\
+_`r key_word`_
+
+ `r ht`
+ 
